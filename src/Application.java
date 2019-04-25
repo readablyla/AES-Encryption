@@ -1,18 +1,22 @@
 import java.io.*;
 
-/*
-@author Brenden Mayall c3236213
-@author Leala Darby
+/**
+ * @author Brenden Mayall c3236213
+ * @author Leala Darby c3279478
+ *
+ * Main runnable class for AES implementaion.
+ */
 
-Main runnable class for AES implementaion. 
-*/
+
 public class Application {
 
-	/*
-	Handles file input and output. Runs AES class.
-	Usage: java Application inputFile.txt e|d
-	@param args[] Array of command line arguments
-	*/
+	/**
+	 * Handles file input and output. Runs AES class.
+	 * Usage: java Application inputFile.txt e|d
+	 * @param args[] Array of command line arguments
+	 */
+
+	//TODO: (Leala) the problem with args...
 	//TODO exception handling
 	public static void main(String args[]) throws IOException {
 		BufferedReader in = null;
@@ -41,4 +45,5 @@ public class Application {
 			if (out != null) out.close();
 		}
 	}
+	//TODO: (Leala) find out how to redirect ide output
 }
