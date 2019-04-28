@@ -6,17 +6,13 @@ import java.io.*;
  *
  * Main runnable class for AES implementaion.
  */
-
-
 public class Application {
 
 	/**
 	 * Handles file input and output. Runs AES class.
 	 * Usage: java Application inputFile.txt e|d
-	 * @param args[] Array of command line arguments
+	 * @param args Array of command line arguments
 	 */
-
-	//TODO: (Leala) the problem with args...
 	//TODO exception handling
 	public static void main(String args[]) throws IOException {
 		BufferedReader in = null;
@@ -24,7 +20,7 @@ public class Application {
 
 		try {
 			in = new BufferedReader(new FileReader(args[0]));
-			out = new BufferedWriter(new FileWriter("output.txt"));
+			out = new BufferedWriter(new FileWriter("test_output/output.txt"));
 			String firstLine = in.readLine();
 			String key = in.readLine();
 
