@@ -87,19 +87,112 @@ public class AES {
 	//parametrised constructor (java generates default constructors itself :) )
 	public AES(String firstLine, String key, boolean encrypt) {
 		mode = encrypt ? Mode.encrypt : Mode.decrypt;	//if encrypt is true set mode to encrpyt, otherwise set mode to decrypt
+
 		for (int i = 0; i < 4; i++) {	//puts firstLine into the state as a 4x4 matrix
 			for (int j = 0; j < 4; j++) {
 				state[j][i] = Integer.parseInt(firstLine.substring((8 * i) + (32 * j), (8 * i) + (32 * j + 8)), 2); 
 			}
 		}
 
-		//testing state. Note deletes leading zeros
+		//check state.
 		/*for (int i = 0; i < 4; i++) {	
 			for (int j = 0; j < 4; j++) {
-				System.out.print(Integer.toBinaryString(state[j][i]) + " "); 
+				System.out.print(String.format("%8s", Integer.toBinaryString(state[j][i])).replace(' ', '0') + " "); 
 			}
 			System.out.print("\n");
 		}*/
 	}
+
+	/**
+	 * Substitutes bytes in the passed state array with the bytes in the sBox array.
+	 * Each byte in state is replaced by byte in row (left nibble) and column (right nibble) of sBox. 
+	 * @param state array whose values will be replaced by values in sBox
+	 */
+	private void subBytes(int[][] state) {
+		int val = 0;
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				val = state[j][i];
+				state[j][i] = sBox[val / 16][val % 16];
+			}
+		}
+	}
+
+	/**
+	 * Same as subBytes but uses inverseSBox
+	 * @param state array whose values will be replaced by values in inverseSBox
+	 */
+	private void invSubBytes(int[][] state) {
+		int val = 0;
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				val = state[j][i];
+				state[j][i] = inverseSBox[val / 16][val % 16];
+			}
+		}
+	}
+
+	/**
+	 * Performs the shift rows part of the AES algorithm
+	 * @param state array to perform shifts on
+	 */
+	private void shiftRows(int[][] state) {
+		for (int i = 1; i < 4; i++) {
+			state[i] = rotateLeft(state[i], i);
+		}
+	}
+
+	/**
+	 * Inverse of shiftRows for decryption
+	 * @param state array to perform shifts on
+	 */
+	private void invShiftRows(int[][] state) {
+		for (int i = 1; i < 4; i++) {
+			state[i] = rotateRight(state[i], i);
+		}
+	}
+
+	/**
+	 * Does a circular shift left to the given array the specified number of times
+	 * @param row the array to be rotated
+	 * @param times number of times the array is rotated
+	 * @return the rotated array 
+	 */
+	private int[] rotateLeft(int[] row, int times) {
+		while (times > 0) {
+			int temp = row[0];
+			for (int i = 0; i < 3; i++) {
+				row[i] = row[i + 1];
+			}
+			row[3] = temp;
+			times--;
+		}
+		return row;
+	}
+
+	/**
+	 * Does a circular shift right to the given array the specified number of times
+	 * @param row the array to be rotated
+	 * @param times number of times the array is rotated
+	 * @return the rotated array 
+	 */
+	private int[] rotateRight(int[] row, int times) {
+		while (times > 0) {
+			int temp = row[3];
+			for (int i = 0; i < 3; i++) {
+				row[i + 1] = row[i];
+			}
+			row[0] = temp;
+			times--;
+		}
+		return row;
+	}
+
+	/* TODO: add following methods
+	 * mixColoumns
+	 * invMixColoumns
+	 * addRoundKey
+	 * keyExpansion 
+	 */
 }
 

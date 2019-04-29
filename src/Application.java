@@ -20,7 +20,7 @@ public class Application {
 
 		try {
 			in = new BufferedReader(new FileReader(args[0]));
-			out = new BufferedWriter(new FileWriter("test_output/output.txt"));
+			out = new BufferedWriter(new FileWriter("test_input/output.txt"));
 			String firstLine = in.readLine();
 			String key = in.readLine();
 
