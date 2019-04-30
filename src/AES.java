@@ -90,17 +90,16 @@ public class AES {
 
 		for (int i = 0; i < 4; i++) {	//puts firstLine into the state as a 4x4 matrix
 			for (int j = 0; j < 4; j++) {
-				state[j][i] = Integer.parseInt(firstLine.substring((8 * i) + (32 * j), (8 * i) + (32 * j + 8)), 2); 
+				state[j][i] = Integer.parseInt(firstLine.substring((8 * j) + (32 * i), (8 * j) + (32 * i + 8)), 2); 
 			}
 		}
 
-		//check state.
-		/*for (int i = 0; i < 4; i++) {	
-			for (int j = 0; j < 4; j++) {
-				System.out.print(String.format("%8s", Integer.toBinaryString(state[j][i])).replace(' ', '0') + " "); 
-			}
-			System.out.print("\n");
-		}*/
+		/*printState(state);
+		mixColoumns(state);
+		printState(state);
+		invMixColoumns(state);
+		printState(state);*/
+
 	}
 
 	/**
@@ -179,8 +178,8 @@ public class AES {
 	private int[] rotateRight(int[] row, int times) {
 		while (times > 0) {
 			int temp = row[3];
-			for (int i = 0; i < 3; i++) {
-				row[i + 1] = row[i];
+			for (int i = 3; i > 0; i--) {
+				row[i] = row[i - 1];
 			}
 			row[0] = temp;
 			times--;
@@ -188,11 +187,97 @@ public class AES {
 		return row;
 	}
 
+	/**
+	 * Performs matrix multiplication of state and galois array in GF(2^8).
+	 * Result is then mapped to state
+	 * @param state array to be modified
+	 */
+	private void mixColoumns(int[][] state) {
+		int [][] tempArr = new int[4][4];
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				for (int k = 0; k < 4; k++) {
+					tempArr[i][j] ^= GFMul(galois[i][k], state[k][j]);
+				}
+			}
+		}
+		copyMatrix(state, tempArr);
+	}
+
+	/**
+	 * Performs matrix multiplication of state and inverseGalois array in GF(2^8).
+	 * Result is then mapped to state
+	 * @param state array to be modified
+	 */
+	private void invMixColoumns(int[][] state) {
+		int [][] tempArr = new int[4][4];
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				for (int k = 0; k < 4; k++) {
+					tempArr[i][j] ^= GFMul(inverseGalois[i][k], state[k][j]);
+				}
+			}
+		}
+		copyMatrix(state, tempArr);
+	}
+
+	/*
+	 * Note: adapted from implementation found here: https://en.wikipedia.org/wiki/Rijndael_MixColumns#Implementation_example.
+	 * Took me a while to understand how it does it. Similair to shift-add binary multiplication but using xor instead of add
+	 * and xors with irreducible polynomial to find modulus. We could also use lookup tables for this. Might change it, tell me what you think.
+	 */
+
+	/**
+	 * Performs GF(2^8) multiplication on two integers a and b.
+	 * @param a first value from galois matrix
+	 * @param b second value from state
+	 * @return result of multiplication
+	 */
+	private int GFMul(int a, int b) {
+		int result = 0;
+		for(int i = 0; i < 8; i++) {
+			if ((b & 0x01) != 0) {	//if LSB of b is 1, xor a with result
+				result ^= a;
+			}
+			boolean msbSet = (a & 0x80) != 0;	//true if MSB is 1
+			a <<= 1;
+			if (msbSet) {	
+				a ^= 0x11b;	//x^8 + x^4 + x^3 + x + 1
+			}
+			b >>= 1;
+		}
+		return result;
+	}
+
+	/**
+	 * Helper method to copy 2d array
+	 * @param dest matrix copied to
+	 * @param source matrix to be copied
+	 */ 
+	private void copyMatrix(int[][] dest, int[][] source) {
+		assert dest.length == source.length && dest[0].length == source[0].length;
+		for(int i = 0; i < dest.length;i++) {
+			System.arraycopy(source[i], 0, dest[i], 0, dest[0].length);
+		}
+	}
+
 	/* TODO: add following methods
-	 * mixColoumns
-	 * invMixColoumns
 	 * addRoundKey
 	 * keyExpansion 
 	 */
+
+	/**
+	 * Debugging method. Prints state to console
+	 * @param state array to print
+	 */
+	private void printState(int[][] state) {
+		for (int i = 0; i < 4; i++) {	
+			for (int j = 0; j < 4; j++) {
+				System.out.print(String.format("%8s", Integer.toBinaryString(state[i][j])).replace(' ', '0') + " "); 
+			}
+			System.out.println("");
+		}
+		System.out.println("");
+	}
 }
 
