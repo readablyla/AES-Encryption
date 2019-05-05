@@ -310,7 +310,10 @@ public class AES {
 		return row;
 	}
 
-	//TODO: needs testing, easier to do in hex?
+	/**
+	 * Performs matrix multiplication of state and galois array in GF(2^8), then applies to the state using lookup table
+	 * @param state array to be modified
+	 */
 	private void mixColumns(int[][] state) {
 		int[][] tempArr = new int[4][4];
 		for (int i = 0; i < 4; i++){//for each column
@@ -322,7 +325,10 @@ public class AES {
 		copyMatrix(state, tempArr);
 	}
 
-	//TODO: needs testing, easier to do in hex?
+	/**
+	 * Performs matrix multiplication of state and inverse galois array in GF(2^8), then applies to the state using lookup table
+	 * @param state array to be modified
+	 */
 	private void inverseMixColumns(int[][] state) {// needs testing, easier to do in hex?
 		int[][] tempArr = new int[4][4];
 		for (int i = 0; i < 4; i++){//for each column
