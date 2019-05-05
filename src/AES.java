@@ -171,9 +171,12 @@ public class AES {
 	public static enum Mode {encrypt, decrypt}
 	private Mode mode;
 	private int[][] state = new int[4][4];
+	private int[][] key = new int[4][4];
+	private int[][] expandedKey = new int[4][44];// is that right?
+	private int[][] roundKey = new int[4][4];
 
 	//parametrised constructor
-	public AES(String firstLine, String key, boolean encrypt) {
+	public AES(String firstLine, String inputKey, boolean encrypt) {
 		mode = encrypt ? Mode.encrypt : Mode.decrypt;	//if encrypt is true set mode to encrpyt, otherwise set mode to decrypt
 		int numberOfRounds = 9;
 
@@ -183,45 +186,46 @@ public class AES {
 				state[j][i] = Integer.parseInt(firstLine.substring((8 * j) + (32 * i), (8 * j) + (32 * i + 8)), 2);
 			}
 		}
+		//puts inputKey into the key as a 4x4 matrix
+		for (int i = 0; i < 4; i++) {	//fill out the key matrix column by column
+			for (int j = 0; j < 4; j++) {	//fill out the key matrix row by row
+				key[j][i] = Integer.parseInt(firstLine.substring((8 * j) + (32 * i), (8 * j) + (32 * i + 8)), 2);
+			}
+		}
 
-
-		/*//*************************************************************
-		//should each key be 4 by 4 or 16 by 1?
-		//int[][][] expandedKey = new int[11][4][4];
-		//keyExpansion(key, expandedKey);
-		//addRoundKey(state, key);
+		//*************************************************************
+		keyExpansionSchedule(key, expandedKey);
+		addRoundKey(state, setRoundKey(0));
 
 		for (int i = 0; i < numberOfRounds; i++){
 			System.out.println("Round "+(i+1)+", original state: ");
 			printState(state);
+
 			subBytes(state);
 			System.out.println("Round "+(i+1)+", subBytes: ");
 			printState(state);
+
 			shiftRows(state);
 			System.out.println("Round "+(i+1)+", shiftRows: ");
 			printState(state);
+
 			mixColumns(state);
 			System.out.println("Round "+(i+1)+", mixCols: ");
 			printState(state);
-			*//*addRoundKey(state, expandedKey + (16*(i+1)));// the expanded key for each round is the 16 bytes corr to the round number. 16 multiplied by the round index.
+
+			addRoundKey(state, setRoundKey(i+1));// the expanded key for each round is the 16 bytes corr to the round number. 16 multiplied by the round index.
 			System.out.println("addRoundKey: ");
-			printState(state);*//*
+			printState(state);
 		}
+		subBytes(state);
 		System.out.println("Round 10, subBytes: ");
 		printState(state);
-		subBytes(state);
+		shiftRows(state);
 		System.out.println("Round 10, shiftRows: ");
 		printState(state);
-		shiftRows(state);
-		//addRoundKey(state, expandedKey + 160);//10th key so multiply by 10
-		//**************************************************************/
-		System.out.println("original state: ");
-		printState(state);
-		mixColumns(state);
-		System.out.println("mixCols: ");
-		printState(state);
-		inverseMixColumns(state);
-		System.out.println("inverseMixCols: ");
+		addRoundKey(state, setRoundKey(10));
+		//*************************************************************
+		System.out.println("Encrypted: ");
 		printState(state);
 	}
 
@@ -231,9 +235,9 @@ public class AES {
 	 * @param state array whose values will be replaced by values in sBox
 	 */
 	private void subBytes(int[][] state) {
-		int val = 0;
-		for (int i = 0; i < 4; i++) {//columns?
-			for (int j = 0; j < 4; j++) {//rows?
+		int val;
+		for (int i = 0; i < 4; i++) {//columns
+			for (int j = 0; j < 4; j++) {//rows
 				val = state[j][i];
 				state[j][i] = sBox[val / 16][val % 16];
 			}
@@ -245,9 +249,9 @@ public class AES {
 	 * @param state array whose values will be replaced by values in inverseSBox
 	 */
 	private void invSubBytes(int[][] state) {
-		int val = 0;
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
+		int val;
+		for (int i = 0; i < 4; i++) {//columns
+			for (int j = 0; j < 4; j++) {//rows
 				val = state[j][i];
 				state[j][i] = inverseSBox[val / 16][val % 16];
 			}
@@ -256,21 +260,21 @@ public class AES {
 
 	/**
 	 * Performs the shift rows part of the AES algorithm
-	 * @param state array to perform shifts on
+	 * @param arr array to perform shifts on
 	 */
-	private void shiftRows(int[][] state) {
+	private void shiftRows(int[][] arr) {
 		for (int i = 1; i < 4; i++) {
-			state[i] = rotateLeft(state[i], i);
+			arr[i] = rotateLeft(arr[i], i);
 		}
 	}
 
 	/**
 	 * Inverse of shiftRows for decryption
-	 * @param state array to perform shifts on
+	 * @param arr array to perform shifts on
 	 */
-	private void invShiftRows(int[][] state) {
+	private void invShiftRows(int[][] arr) {
 		for (int i = 1; i < 4; i++) {
-			state[i] = rotateRight(state[i], i);
+			arr[i] = rotateRight(arr[i], i);
 		}
 	}
 
@@ -329,7 +333,7 @@ public class AES {
 	 * Performs matrix multiplication of state and inverse galois array in GF(2^8), then applies to the state using lookup table
 	 * @param state array to be modified
 	 */
-	private void inverseMixColumns(int[][] state) {// needs testing, easier to do in hex?
+	private void inverseMixColumns(int[][] state) {
 		int[][] tempArr = new int[4][4];
 		for (int i = 0; i < 4; i++){//for each column
 			tempArr[0][i] = (multiplyE[state[0][i]] ^ multiplyB[state[1][i]] ^ multiplyD[state[2][i]] ^ multiply9[state[3][i]]);
@@ -339,45 +343,81 @@ public class AES {
 		}
 		copyMatrix(state, tempArr);
 	}
-	/*private void keyExpansion(int[][] key, int[][][] allExpandedKeys){
+
+	//Operates on 4 bytes
+	private int[] keyExpansionCore(int[] temp, int roundConstantValToXOR){
+		//Rotate left
+		temp = rotateLeft(temp, 1);
+		//S-box -- TODO: the following is very similar to subBytes method, can we use it somehow?
+		int hexaDec;
+		for (int i = 0; i < 4; i++){
+			hexaDec = temp[i];
+			temp[i] = sBox[hexaDec / 16][hexaDec % 16];
+		}
+		//Round constant
+		temp[0] ^= roundConstant[roundConstantValToXOR];
+		return temp;
+	}
+
+	//TODO: test!!!
+	private void keyExpansionSchedule(int[][] inputKey, int[][] allExpandedKeys){
 		//First copy the original key
 		for (int i = 0; i < 4; i++){
 			for (int j = 0; j < 4; j++){
-				allExpandedKeys[1][i][j] = key[i][j];
+				allExpandedKeys[i][j] = inputKey[i][j];
 			}
 		}
 		int currentBytes = 16; //out of 176
-		int roundConstantInteration = 1;
-		int[][] temp = new int[4][4];
+		int roundConstantValToXOR = 1;
+		int[] tempArr = new int[4];
 
 		while (currentBytes < 176){
 			for (int i = 0; i < 4; i++){
-				temp[i] = allExpandedKeys[i + currentBytes - 4];
+				tempArr[i] = allExpandedKeys[i][(currentBytes/4)-1];// col index 3 then 4 then 5...
 			}
-			//Core once for each 16 byte key
+			//Call to core routine
 			if (currentBytes % 16 == 0){
-				keyExpansionCore(temp, roundConstantInteration);
-				roundConstantInteration++;
+				keyExpansionCore(tempArr, roundConstantValToXOR);
+				roundConstantValToXOR++;
+			}
+			//XOR tempArr with the 4th previous column
+			for (int i = 0; i < 4; i++){
+				allExpandedKeys[i][currentBytes / 4] = allExpandedKeys[i][(currentBytes/4)-4] ^ tempArr[i];// col index 4 then 5 then 6...; col index 0 then 1 then 2...
+			}
+			currentBytes += 4;
+		}
+	}
+
+	private int[][] setRoundKey(int round){
+		for (int i = 0; i < 4; i++){
+			for (int j = round * 4; j < (round * 4) + 4; j++){
+				roundKey[i][j % 4] = expandedKey[i][j];
 			}
 		}
-	}*/
+		return roundKey;
+	}
 
-	/* TODO: add following methods
-	 * addRoundKey
-	 * keyExpansion
-	 */
+	private void addRoundKey(int[][] state, int[][] roundKey){
+		for (int i = 0; i < 4; i++){
+			for (int j = 0; j < 4; j++){
+				state[j][i] ^= roundKey[j][i];
+			}
+		}
+	}
 
 	/**
 	 * Helper method to copy 2d array
 	 * @param dest matrix copied to
 	 * @param source matrix to be copied
 	 */ 
-	private void copyMatrix(int[][] dest, int[][] source) {// currently unused
+	private void copyMatrix(int[][] dest, int[][] source) {
 		assert dest.length == source.length && dest[0].length == source[0].length;
 		for(int i = 0; i < dest.length;i++) {
 			System.arraycopy(source[i], 0, dest[i], 0, dest[0].length);
 		}
 	}
+
+
 
 	/**
 	 * Debugging method. Prints state to console
