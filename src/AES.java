@@ -189,7 +189,7 @@ public class AES {
 		//puts inputKey into the key as a 4x4 matrix
 		for (int i = 0; i < 4; i++) {	//fill out the key matrix column by column
 			for (int j = 0; j < 4; j++) {	//fill out the key matrix row by row
-				key[j][i] = Integer.parseInt(firstLine.substring((8 * j) + (32 * i), (8 * j) + (32 * i + 8)), 2);
+				key[j][i] = Integer.parseInt(inputKey.substring((8 * j) + (32 * i), (8 * j) + (32 * i + 8)), 2);
 			}
 		}
 
