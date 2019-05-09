@@ -25,10 +25,9 @@ public class Application {
 			String key = in.readLine();
 
 			if (args[1].equalsIgnoreCase("e")) {            //for encryption
-				//AES0 aes0 = new AES0(firstLine, key, true);
 				AES aes = new AES(firstLine, key, true);
 			} else if (args[1].equalsIgnoreCase("d")) {    //for decryption
-				//AES0 aes0 = new AES0(firstLine, key, false);
+				AES aes = new AES(firstLine, key, false);
 			} else {
 				System.err.println("Correct usage: java Application inputFile.txt e|d");
 				System.exit(0);

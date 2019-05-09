@@ -2,16 +2,19 @@
  * @author Brenden Mayall c3236213
  * @author Leala Darby c3279478
  *
- * Superclass for AES implementations. Contains methods and lookup tables for AES0, AES1, AES2, AES3, AES4
+ * Contains methods and lookup tables for AES0, AES1, AES2, AES3, AES4
  *
- * I think for now let's have all of the setup and logic in this class. Maybe a better way to structure it will come to
- * mind later, but for now I think that will be fine
  */
+//Brenden:
+//TODO: create a method that converts our 4x4 state to a string formatted as required.
+	//Call at the end of each AES_I method so that this is what is returned by each.
+	//No System.outs in this class!
+//TODO: format all output as required (in Application class, obviously)
+//TODO: commenting/documentation. Ask me if anything in my methods is unclear! I tried to do some as I went...
 
+public class AES{
 
-public class AES {
-
-	//S-box used for subBytes
+	//S-box matrix used for the substitute bytes and key expansion steps
 	private static final int[][] sBox = {{0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76},
 										{0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0}, 
 										{0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15}, 
@@ -29,7 +32,7 @@ public class AES {
 										{0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf}, 
 										{0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16}};
 
-	//inverse S-box used for invSubBytes
+	//Inverse S-box matrix used for inverse substitute bytes
 	private static final int[][] inverseSBox =  {{0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb},
 												{0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb},
 												{0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e},
@@ -48,23 +51,7 @@ public class AES {
 												{0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d}};
 
 	// Key Expansion array
-	//I'm not sure that we will need this entire array for AES-128? I read something suggesting we could possibly get away with a shorter version? First 10 or 11 values.
-	private static final int[] roundConstant = {0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a,
-												0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39,
-												0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a,
-												0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8,
-												0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef,
-												0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc,
-												0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b,
-												0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3,
-												0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94,
-												0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20,
-												0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35,
-												0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f,
-												0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04,
-												0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63,
-												0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd,
-												0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb};
+	private static final int[] roundConstant = {0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
 
 	//Lookup tables for mixColumns
 	private static final int[] multiply2 = {0x00,0x02,0x04,0x06,0x08,0x0a,0x0c,0x0e,0x10,0x12,0x14,0x16,0x18,0x1a,0x1c,0x1e,
@@ -166,67 +153,154 @@ public class AES {
 											0x37,0x39,0x2b,0x25,0x0f,0x01,0x13,0x1d,0x47,0x49,0x5b,0x55,0x7f,0x71,0x63,0x6d,
 											0xd7,0xd9,0xcb,0xc5,0xef,0xe1,0xf3,0xfd,0xa7,0xa9,0xbb,0xb5,0x9f,0x91,0x83,0x8d};
 
-	//TODO add other variables here
-
-	public static enum Mode {encrypt, decrypt}
-	private Mode mode;
-	private int[][] state = new int[4][4];
-	private int[][] key = new int[4][4];
-	private int[][] expandedKey = new int[4][44];// is that right?
-	private int[][] roundKey = new int[4][4];
+	private int[][] expandedKey = new int[4][44];
+	private int numberOfRounds = 9;
 
 	//parametrised constructor
-	public AES(String firstLine, String inputKey, boolean encrypt) {
-		mode = encrypt ? Mode.encrypt : Mode.decrypt;	//if encrypt is true set mode to encrpyt, otherwise set mode to decrypt
-		int numberOfRounds = 9;
-
-		//puts firstLine into the state as a 4x4 matrix
-		for (int i = 0; i < 4; i++) {	//fill out the state column by column
-			for (int j = 0; j < 4; j++) {	//fill out the state row by row
+	public AES(String firstLine, String inputKey, boolean e){
+		int[][] state = new int[4][4];
+		int[][] key = new int[4][4];
+		for (int i = 0; i < 4; i++){	//fill out the state column by column
+			for (int j = 0; j < 4; j++){	//fill out the state row by row
+				//puts firstLine into the state as a 4x4 matrix
 				state[j][i] = Integer.parseInt(firstLine.substring((8 * j) + (32 * i), (8 * j) + (32 * i + 8)), 2);
-			}
-		}
-		//puts inputKey into the key as a 4x4 matrix
-		for (int i = 0; i < 4; i++) {	//fill out the key matrix column by column
-			for (int j = 0; j < 4; j++) {	//fill out the key matrix row by row
+				//puts inputKey into the key as a 4x4 matrix
 				key[j][i] = Integer.parseInt(inputKey.substring((8 * j) + (32 * i), (8 * j) + (32 * i + 8)), 2);
 			}
 		}
 
-		//*************************************************************
 		keyExpansionSchedule(key, expandedKey);
-		addRoundKey(state, setRoundKey(0));
+		//testing******************
+		printState(AES0(state, e));
+		printState(AES1(state, e));
+		printState(AES2(state, e));
+		printState(AES3(state, e));
+		printState(AES4(state, e));
+		//*************************
+	}
 
-		for (int i = 0; i < numberOfRounds; i++){
-			System.out.println("Round "+(i+1)+", original state: ");
-			printState(state);
-
-			subBytes(state);
-			System.out.println("Round "+(i+1)+", subBytes: ");
-			printState(state);
-
+	private int[][] AES0(int[][] state, boolean e){//change this to return a string once we have a method that converts state to a string?
+		if (e){
+			addRoundKey(state, setRoundKey(0));
+			for (int i = 0; i < numberOfRounds; i++){
+				substituteBytes(state);
+				shiftRows(state);
+				mixColumns(state);
+				addRoundKey(state, setRoundKey(i+1));//round keys 1:9
+			}
+			substituteBytes(state);
 			shiftRows(state);
-			System.out.println("Round "+(i+1)+", shiftRows: ");
-			printState(state);
-
-			mixColumns(state);
-			System.out.println("Round "+(i+1)+", mixCols: ");
-			printState(state);
-
-			addRoundKey(state, setRoundKey(i+1));// the expanded key for each round is the 16 bytes corr to the round number. 16 multiplied by the round index.
-			System.out.println("addRoundKey: ");
-			printState(state);
+			addRoundKey(state, setRoundKey(10));
 		}
-		subBytes(state);
-		System.out.println("Round 10, subBytes: ");
-		printState(state);
-		shiftRows(state);
-		System.out.println("Round 10, shiftRows: ");
-		printState(state);
-		addRoundKey(state, setRoundKey(10));
-		//*************************************************************
-		System.out.println("Encrypted: ");
-		printState(state);
+		else{
+			addRoundKey(state, setRoundKey(10));
+			for (int i = numberOfRounds; i > 0 ; i--){
+				inverseShiftRows(state);
+				inverseSubstituteBytes(state);
+				addRoundKey(state, setRoundKey(i));
+				inverseMixColumns(state);
+			}
+			inverseShiftRows(state);
+			inverseSubstituteBytes(state);
+			addRoundKey(state, setRoundKey(0));
+		}
+		return state;
+	}
+
+	private int[][] AES1(int[][] state, boolean e) {//change this to return a string once we have a method that converts state to a string?
+		if (e){
+			addRoundKey(state, setRoundKey(0));
+			for (int i = 0; i < numberOfRounds; i++){
+				shiftRows(state);
+				mixColumns(state);
+				addRoundKey(state, setRoundKey(i+1));//round keys 1:9
+			}
+			shiftRows(state);
+			addRoundKey(state, setRoundKey(10));
+		}
+		else{
+			addRoundKey(state, setRoundKey(10));
+			for (int i = numberOfRounds; i > 0 ; i--){
+				inverseShiftRows(state);
+				addRoundKey(state, setRoundKey(i));
+				inverseMixColumns(state);
+			}
+			inverseShiftRows(state);
+			addRoundKey(state, setRoundKey(0));
+		}
+		return state;
+	}
+
+	private int[][] AES2(int[][] state, boolean e){//change this to return a string once we have a method that converts state to a string?
+		if (e){
+			addRoundKey(state, setRoundKey(0));
+			for (int i = 0; i < numberOfRounds; i++){
+				substituteBytes(state);
+				mixColumns(state);
+				addRoundKey(state, setRoundKey(i+1));//round keys 1:9
+			}
+			substituteBytes(state);
+			addRoundKey(state, setRoundKey(10));
+		}
+		else{
+			addRoundKey(state, setRoundKey(10));
+			for (int i = numberOfRounds; i > 0 ; i--){
+				inverseSubstituteBytes(state);
+				addRoundKey(state, setRoundKey(i));
+				inverseMixColumns(state);
+			}
+			inverseSubstituteBytes(state);
+			addRoundKey(state, setRoundKey(0));
+		}
+		return state;
+	}
+
+	private int[][] AES3(int[][] state, boolean e){//change this to return a string once we have a method that converts state to a string?
+		if (e){
+			addRoundKey(state, setRoundKey(0));
+			for (int i = 0; i < numberOfRounds; i++){
+				substituteBytes(state);
+				shiftRows(state);
+				addRoundKey(state, setRoundKey(i+1));//round keys 1:9
+			}
+			substituteBytes(state);
+			shiftRows(state);
+			addRoundKey(state, setRoundKey(10));
+		}
+		else{
+			addRoundKey(state, setRoundKey(10));
+			for (int i = numberOfRounds; i > 0 ; i--){
+				inverseShiftRows(state);
+				inverseSubstituteBytes(state);
+				addRoundKey(state, setRoundKey(i));
+			}
+			inverseShiftRows(state);
+			inverseSubstituteBytes(state);
+			addRoundKey(state, setRoundKey(0));
+		}
+		return state;
+	}
+
+	private int[][] AES4(int[][] state, boolean e){//change this to return a string once we have a method that converts state to a string?
+		if (e){
+			for (int i = 0; i < numberOfRounds; i++){
+				substituteBytes(state);
+				shiftRows(state);
+				mixColumns(state);
+			}
+			substituteBytes(state);
+			shiftRows(state);
+		}
+		else{
+			for (int i = numberOfRounds; i > 0 ; i--){
+				inverseShiftRows(state);
+				inverseSubstituteBytes(state);
+				inverseMixColumns(state);
+			}
+			inverseShiftRows(state);
+			inverseSubstituteBytes(state);
+		}
+		return state;
 	}
 
 	/**
@@ -234,10 +308,22 @@ public class AES {
 	 * Each byte in state is replaced by byte in row (left nibble) and column (right nibble) of sBox. 
 	 * @param state array whose values will be replaced by values in sBox
 	 */
-	private void subBytes(int[][] state) {
+	private void substituteBytes(int[][] state) {
+		substituteBytesHelper(state, sBox);
+	}
+
+	/**
+	 * Same as substituteBytes but uses inverseSBox
+	 * @param state array whose values will be replaced by values in inverseSBox
+	 */
+	private void inverseSubstituteBytes(int[][] state){
+		substituteBytesHelper(state, inverseSBox);
+	}
+
+	private void substituteBytesHelper(int[][] state, int[][] sBox){//TODO: sBox parameter could probably have a better name...
 		int val;
-		for (int i = 0; i < 4; i++) {//columns
-			for (int j = 0; j < 4; j++) {//rows
+		for (int i = 0; i < 4; i++){//columns
+			for (int j = 0; j < 4; j++){//rows
 				val = state[j][i];
 				state[j][i] = sBox[val / 16][val % 16];
 			}
@@ -245,49 +331,35 @@ public class AES {
 	}
 
 	/**
-	 * Same as subBytes but uses inverseSBox
-	 * @param state array whose values will be replaced by values in inverseSBox
-	 */
-	private void invSubBytes(int[][] state) {
-		int val;
-		for (int i = 0; i < 4; i++) {//columns
-			for (int j = 0; j < 4; j++) {//rows
-				val = state[j][i];
-				state[j][i] = inverseSBox[val / 16][val % 16];
-			}
-		}
-	}
-
-	/**
 	 * Performs the shift rows part of the AES algorithm
-	 * @param arr array to perform shifts on
+	 * @param array the array to perform shifts on
 	 */
-	private void shiftRows(int[][] arr) {
+	private void shiftRows(int[][] array) {
 		for (int i = 1; i < 4; i++) {
-			arr[i] = rotateLeft(arr[i], i);
+			array[i] = rotateLeft(array[i], i);
 		}
 	}
 
 	/**
 	 * Inverse of shiftRows for decryption
-	 * @param arr array to perform shifts on
+	 * @param array the array to perform shifts on
 	 */
-	private void invShiftRows(int[][] arr) {
-		for (int i = 1; i < 4; i++) {
-			arr[i] = rotateRight(arr[i], i);
+	private void inverseShiftRows(int[][] array){
+		for (int i = 1; i < 4; i++){
+			array[i] = rotateRight(array[i], i);
 		}
 	}
 
 	/**
-	 * Does a circular shift left to the given array the specified number of times
+	 * Performs a circular left shift to the given array the specified number of times
 	 * @param row the array to be rotated
-	 * @param times number of times the array is rotated
+	 * @param times number of times the array is to be rotated
 	 * @return the rotated array 
 	 */
-	private int[] rotateLeft(int[] row, int times) {
-		while (times > 0) {
+	private int[] rotateLeft(int[] row, int times){
+		while (times > 0){
 			int temp = row[0];
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < 3; i++){
 				row[i] = row[i + 1];
 			}
 			row[3] = temp;
@@ -302,8 +374,8 @@ public class AES {
 	 * @param times number of times the array is rotated
 	 * @return the rotated array 
 	 */
-	private int[] rotateRight(int[] row, int times) {
-		while (times > 0) {
+	private int[] rotateRight(int[] row, int times){
+		while (times > 0){
 			int temp = row[3];
 			for (int i = 3; i > 0; i--) {
 				row[i] = row[i - 1];
@@ -318,37 +390,37 @@ public class AES {
 	 * Performs matrix multiplication of state and galois array in GF(2^8), then applies to the state using lookup table
 	 * @param state array to be modified
 	 */
-	private void mixColumns(int[][] state) {
-		int[][] tempArr = new int[4][4];
+	private void mixColumns(int[][] state){
+		int[][] tempArray = new int[4][4];
 		for (int i = 0; i < 4; i++){//for each column
-			tempArr[0][i] = (multiply2[state[0][i]] ^ multiply3[state[1][i]] ^ state[2][i] ^ state[3][i]);
-			tempArr[1][i] = (state[0][i] ^ multiply2[state[1][i]] ^ multiply3[state[2][i]] ^ state[3][i]);
-			tempArr[2][i] = (state[0][i] ^ state[1][i] ^ multiply2[state[2][i]] ^ multiply3[state[3][i]]);
-			tempArr[3][i] = (multiply3[state[0][i]] ^ state[1][i] ^ state[2][i] ^ multiply2[state[3][i]]);
+			tempArray[0][i] = (multiply2[state[0][i]] ^ multiply3[state[1][i]] ^ state[2][i] ^ state[3][i]);
+			tempArray[1][i] = (state[0][i] ^ multiply2[state[1][i]] ^ multiply3[state[2][i]] ^ state[3][i]);
+			tempArray[2][i] = (state[0][i] ^ state[1][i] ^ multiply2[state[2][i]] ^ multiply3[state[3][i]]);
+			tempArray[3][i] = (multiply3[state[0][i]] ^ state[1][i] ^ state[2][i] ^ multiply2[state[3][i]]);
 		}
-		copyMatrix(state, tempArr);
+		copyMatrix(state, tempArray);
 	}
 
 	/**
 	 * Performs matrix multiplication of state and inverse galois array in GF(2^8), then applies to the state using lookup table
 	 * @param state array to be modified
 	 */
-	private void inverseMixColumns(int[][] state) {
-		int[][] tempArr = new int[4][4];
+	private void inverseMixColumns(int[][] state){
+		int[][] tempArray = new int[4][4];
 		for (int i = 0; i < 4; i++){//for each column
-			tempArr[0][i] = (multiplyE[state[0][i]] ^ multiplyB[state[1][i]] ^ multiplyD[state[2][i]] ^ multiply9[state[3][i]]);
-			tempArr[1][i] = (multiply9[state[0][i]] ^ multiplyE[state[1][i]] ^ multiplyB[state[2][i]] ^ multiplyD[state[3][i]]);
-			tempArr[2][i] = (multiplyD[state[0][i]] ^ multiply9[state[1][i]] ^ multiplyE[state[2][i]] ^ multiplyB[state[3][i]]);
-			tempArr[3][i] = (multiplyB[state[0][i]] ^ multiplyD[state[1][i]] ^ multiply9[state[2][i]] ^ multiplyE[state[3][i]]);
+			tempArray[0][i] = (multiplyE[state[0][i]] ^ multiplyB[state[1][i]] ^ multiplyD[state[2][i]] ^ multiply9[state[3][i]]);
+			tempArray[1][i] = (multiply9[state[0][i]] ^ multiplyE[state[1][i]] ^ multiplyB[state[2][i]] ^ multiplyD[state[3][i]]);
+			tempArray[2][i] = (multiplyD[state[0][i]] ^ multiply9[state[1][i]] ^ multiplyE[state[2][i]] ^ multiplyB[state[3][i]]);
+			tempArray[3][i] = (multiplyB[state[0][i]] ^ multiplyD[state[1][i]] ^ multiply9[state[2][i]] ^ multiplyE[state[3][i]]);
 		}
-		copyMatrix(state, tempArr);
+		copyMatrix(state, tempArray);
 	}
 
-	//Operates on 4 bytes
-	private int[] keyExpansionCore(int[] temp, int roundConstantValToXOR){
+	//Operates on 4 bytes at a time - the 4th word
+	private void gFunction(int[] temp, int roundConstantValToXOR){
 		//Rotate left
 		temp = rotateLeft(temp, 1);
-		//S-box -- TODO: the following is very similar to subBytes method, can we use it somehow?
+		//S-box
 		int hexaDec;
 		for (int i = 0; i < 4; i++){
 			hexaDec = temp[i];
@@ -356,10 +428,9 @@ public class AES {
 		}
 		//Round constant
 		temp[0] ^= roundConstant[roundConstantValToXOR];
-		return temp;
 	}
 
-	//TODO: test!!!
+
 	private void keyExpansionSchedule(int[][] inputKey, int[][] allExpandedKeys){
 		//First copy the original key
 		for (int i = 0; i < 4; i++){
@@ -367,28 +438,30 @@ public class AES {
 				allExpandedKeys[i][j] = inputKey[i][j];
 			}
 		}
-		int currentBytes = 16; //out of 176
-		int roundConstantValToXOR = 1;
-		int[] tempArr = new int[4];
 
-		while (currentBytes < 176){
+		int wordCount = 4; //out of 44
+		int roundConstantValToXOR = 1;
+		int[] tempArray = new int[4];
+
+		while (wordCount < 44){
 			for (int i = 0; i < 4; i++){
-				tempArr[i] = allExpandedKeys[i][(currentBytes/4)-1];// col index 3 then 4 then 5...
+				tempArray[i] = allExpandedKeys[i][(wordCount)-1];// col index 3 then 4 then 5...
 			}
-			//Call to core routine
-			if (currentBytes % 16 == 0){
-				keyExpansionCore(tempArr, roundConstantValToXOR);
+			//Apply the g function to every 4th word
+			if (wordCount % 4 == 0){
+				gFunction(tempArray, roundConstantValToXOR);//modifies tempArray
 				roundConstantValToXOR++;
 			}
 			//XOR tempArr with the 4th previous column
 			for (int i = 0; i < 4; i++){
-				allExpandedKeys[i][currentBytes / 4] = allExpandedKeys[i][(currentBytes/4)-4] ^ tempArr[i];// col index 4 then 5 then 6...; col index 0 then 1 then 2...
+				allExpandedKeys[i][wordCount] = allExpandedKeys[i][(wordCount)-4] ^ tempArray[i];// col index 4 then 5 then 6...; col index 0 then 1 then 2...
 			}
-			currentBytes += 4;
+			wordCount++;
 		}
 	}
 
 	private int[][] setRoundKey(int round){
+		int[][] roundKey = new int[4][4];
 		for (int i = 0; i < 4; i++){
 			for (int j = round * 4; j < (round * 4) + 4; j++){
 				roundKey[i][j % 4] = expandedKey[i][j];
@@ -407,13 +480,14 @@ public class AES {
 
 	/**
 	 * Helper method to copy 2d array
-	 * @param dest matrix copied to
-	 * @param source matrix to be copied
+	 * @param target matrix copied to
+	 * @param original matrix to be copied
 	 */ 
-	private void copyMatrix(int[][] dest, int[][] source) {
-		assert dest.length == source.length && dest[0].length == source[0].length;
-		for(int i = 0; i < dest.length;i++) {
-			System.arraycopy(source[i], 0, dest[i], 0, dest[0].length);
+	private void copyMatrix(int[][] original, int[][] target){
+		for (int i = 0; i < original.length; i++){
+			for (int j = 0; j < original[0].length; j++){
+				target[i][j] = original[i][j];
+			}
 		}
 	}
 
@@ -423,14 +497,14 @@ public class AES {
 	 * Debugging method. Prints state to console
 	 * @param state array to print
 	 */
-	public void printState(int[][] state) {
-		for (int i = 0; i < 4; i++) {	
-			for (int j = 0; j < 4; j++) {
+	public void printState(int[][] state){
+		for (int i = 0; i < 4; i++){
+			for (int j = 0; j < 4; j++){
 				System.out.print(String.format("%8s", Integer.toBinaryString(state[i][j])).replace(' ', '0') + " "); 
 			}
-			System.out.println("");
+			System.out.println();
 		}
-		System.out.println("");
+		System.out.println();
 	}
 }
 
