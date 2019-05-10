@@ -155,9 +155,11 @@ public class AES{
 
 	private int[][] expandedKey = new int[4][44];
 	private int numberOfRounds = 9;
+	//string array of the result after each round
+	private String[] roundResult = new String [10];
 
 	//parametrised constructor
-	public AES(String firstLine, String inputKey, boolean e){
+	public AES(String firstLine, String inputKey, boolean e, int version){
 		int[][] state = new int[4][4];
 		int[][] key = new int[4][4];
 		for (int i = 0; i < 4; i++){	//fill out the state column by column
@@ -170,13 +172,33 @@ public class AES{
 		}
 
 		keyExpansionSchedule(key, expandedKey);
-		//testing******************
+		if (version == 0) {
+			roundResult[9] = matrixToString(AES0(state, e));
+		}
+		else if (version == 1) {
+			roundResult[9] = matrixToString(AES1(state, e));
+		}
+		else if (version == 2) {
+			roundResult[9] = matrixToString(AES2(state, e));
+		}
+		else if (version == 3) {
+			roundResult[9] = matrixToString(AES3(state, e));
+		}
+		else if (version == 4) {
+			roundResult[9] = matrixToString(AES4(state, e));
+		}
+		else {
+			//error
+		}
+		
+	/*	//testing******************
 		printState(AES0(state, e));
 		printState(AES1(state, e));
 		printState(AES2(state, e));
 		printState(AES3(state, e));
 		printState(AES4(state, e));
-		//*************************
+		System.out.println(matrixToString(state));
+		//**************************/
 	}
 
 	private int[][] AES0(int[][] state, boolean e){//change this to return a string once we have a method that converts state to a string?
@@ -187,6 +209,7 @@ public class AES{
 				shiftRows(state);
 				mixColumns(state);
 				addRoundKey(state, setRoundKey(i+1));//round keys 1:9
+				roundResult[i] = matrixToString(state);
 			}
 			substituteBytes(state);
 			shiftRows(state);
@@ -199,6 +222,7 @@ public class AES{
 				inverseSubstituteBytes(state);
 				addRoundKey(state, setRoundKey(i));
 				inverseMixColumns(state);
+				roundResult[i] = matrixToString(state);
 			}
 			inverseShiftRows(state);
 			inverseSubstituteBytes(state);
@@ -214,6 +238,7 @@ public class AES{
 				shiftRows(state);
 				mixColumns(state);
 				addRoundKey(state, setRoundKey(i+1));//round keys 1:9
+				roundResult[i] = matrixToString(state);
 			}
 			shiftRows(state);
 			addRoundKey(state, setRoundKey(10));
@@ -224,6 +249,7 @@ public class AES{
 				inverseShiftRows(state);
 				addRoundKey(state, setRoundKey(i));
 				inverseMixColumns(state);
+				roundResult[i] = matrixToString(state);
 			}
 			inverseShiftRows(state);
 			addRoundKey(state, setRoundKey(0));
@@ -238,6 +264,7 @@ public class AES{
 				substituteBytes(state);
 				mixColumns(state);
 				addRoundKey(state, setRoundKey(i+1));//round keys 1:9
+				roundResult[i] = matrixToString(state);
 			}
 			substituteBytes(state);
 			addRoundKey(state, setRoundKey(10));
@@ -248,6 +275,7 @@ public class AES{
 				inverseSubstituteBytes(state);
 				addRoundKey(state, setRoundKey(i));
 				inverseMixColumns(state);
+				roundResult[i] = matrixToString(state);
 			}
 			inverseSubstituteBytes(state);
 			addRoundKey(state, setRoundKey(0));
@@ -262,6 +290,7 @@ public class AES{
 				substituteBytes(state);
 				shiftRows(state);
 				addRoundKey(state, setRoundKey(i+1));//round keys 1:9
+				roundResult[i] = matrixToString(state);
 			}
 			substituteBytes(state);
 			shiftRows(state);
@@ -273,6 +302,7 @@ public class AES{
 				inverseShiftRows(state);
 				inverseSubstituteBytes(state);
 				addRoundKey(state, setRoundKey(i));
+				roundResult[i] = matrixToString(state);
 			}
 			inverseShiftRows(state);
 			inverseSubstituteBytes(state);
@@ -287,6 +317,7 @@ public class AES{
 				substituteBytes(state);
 				shiftRows(state);
 				mixColumns(state);
+				roundResult[i] = matrixToString(state);
 			}
 			substituteBytes(state);
 			shiftRows(state);
@@ -296,6 +327,7 @@ public class AES{
 				inverseShiftRows(state);
 				inverseSubstituteBytes(state);
 				inverseMixColumns(state);
+				roundResult[i] = matrixToString(state);
 			}
 			inverseShiftRows(state);
 			inverseSubstituteBytes(state);
@@ -492,7 +524,6 @@ public class AES{
 	}
 
 
-
 	/**
 	 * Debugging method. Prints state to console
 	 * @param state array to print
@@ -506,5 +537,19 @@ public class AES{
 		}
 		System.out.println();
 	}
-}
 
+	private String matrixToString(int[][] m) {
+	String res = "";
+	for(int i = 0; i < m.length; i++) {
+		for (int j = 0; j < m[0].length; j++) {
+			res += String.format("%8s", Integer.toBinaryString(m[j][i])).replace(' ', '0');
+		}
+	}
+	return res;
+	}
+
+	//round result getter
+	public String getRoundResult(int roundNum) {
+		return roundResult[roundNum];
+	}
+}

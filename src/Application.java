@@ -20,14 +20,14 @@ public class Application {
 
 		try {
 			in = new BufferedReader(new FileReader(args[0]));
-			out = new BufferedWriter(new FileWriter("./test_input/output.txt"));
+			out = new BufferedWriter(new FileWriter("../test_input/output.txt"));
 			String firstLine = in.readLine();
 			String key = in.readLine();
 
 			if (args[1].equalsIgnoreCase("e")) {            //for encryption
-				AES aes = new AES(firstLine, key, true);
+				AES aes = new AES(firstLine, key, true, 0);
 			} else if (args[1].equalsIgnoreCase("d")) {    //for decryption
-				AES aes = new AES(firstLine, key, false);
+				AES aes = new AES(firstLine, key, false, 0);
 			} else {
 				System.err.println("Correct usage: java Application inputFile.txt e|d");
 				System.exit(0);
