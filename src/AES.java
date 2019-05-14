@@ -172,7 +172,7 @@ public class AES{
 		}
 
 		keyExpansionSchedule(key, expandedKey);
-		if (version == 0) {
+		/*if (version == 0) {
 			roundResult[9] = matrixToString(AES0(state, e));
 		}
 		else if (version == 1) {
@@ -189,16 +189,16 @@ public class AES{
 		}
 		else {
 			//error
-		}
+		}*/
 		
-	/*	//testing******************
+		//testing******************
 		printState(AES0(state, e));
-		printState(AES1(state, e));
+		/*printState(AES1(state, e));
 		printState(AES2(state, e));
 		printState(AES3(state, e));
 		printState(AES4(state, e));
-		System.out.println(matrixToString(state));
-		//**************************/
+		System.out.println(matrixToString(state));*/
+		//*************************
 	}
 
 	private int[][] AES0(int[][] state, boolean e){//change this to return a string once we have a method that converts state to a string?
@@ -209,7 +209,7 @@ public class AES{
 				shiftRows(state);
 				mixColumns(state);
 				addRoundKey(state, setRoundKey(i+1));//round keys 1:9
-				roundResult[i] = matrixToString(state);
+				//roundResult[i] = matrixToString(state);
 			}
 			substituteBytes(state);
 			shiftRows(state);
@@ -222,7 +222,7 @@ public class AES{
 				inverseSubstituteBytes(state);
 				addRoundKey(state, setRoundKey(i));
 				inverseMixColumns(state);
-				roundResult[i] = matrixToString(state);
+				//roundResult[i] = matrixToString(state);
 			}
 			inverseShiftRows(state);
 			inverseSubstituteBytes(state);
@@ -549,7 +549,7 @@ public class AES{
 	}
 
 	//round result getter
-	public String getRoundResult(int roundNum) {
-		return roundResult[roundNum];
+	public String[] getRoundResult() {
+		return roundResult;
 	}
 }
