@@ -28,12 +28,12 @@ public class Application {
 
 			if (args[1].equalsIgnoreCase("e")) {            //for encryption
 
-				AES test = new AES(firstLine, key, true, 0);
-				/*for(int i = 0; i < 10; i++) {
+				/*AES test = new AES(firstLine, key, true, 4);
+				for(int i = 0; i < 10; i++) {
 					System.out.println(test.getRoundResult()[i]);
 				}*/
 
-				/*BitSet[] pi = new BitSet[129];
+				BitSet[] pi = new BitSet[129];
 				BitSet[] ki = new BitSet[129];
 
 				double[][] result_pi = new double[10][5];
@@ -60,7 +60,7 @@ public class Application {
 				for (int i = 0; i < 5; i++) {				//loop for AES version
 					AES aes = new AES(firstLine, key, true, i);
 					p_under_k = aes.getRoundResult();
-					System.out.println(p_under_k[9]);
+					//System.out.println(p_under_k[9]);
 					// p under k vs pi under k
 					for (int j = 1; j < 129; j++) {			//loop for modified plaintexts
 						aes = new AES(toBinaryString(pi[j]), key, true, i);
@@ -121,7 +121,7 @@ public class Application {
 					}
 					out.newLine();
 					out.flush();
-				}*/
+				}
 
 			} else if (args[1].equalsIgnoreCase("d")) {    //for decryption
 				AES aes = new AES(firstLine, key, false, 0);

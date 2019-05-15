@@ -172,7 +172,7 @@ public class AES{
 		}
 
 		keyExpansionSchedule(key, expandedKey);
-		/*if (version == 0) {
+		if (version == 0) {
 			roundResult[9] = matrixToString(AES0(state, e));
 		}
 		else if (version == 1) {
@@ -189,11 +189,11 @@ public class AES{
 		}
 		else {
 			//error
-		}*/
+		}
 		
 		//testing******************
-		printState(AES0(state, e));
-		/*printState(AES1(state, e));
+		/*printState(AES0(state, e));
+		printState(AES1(state, e));
 		printState(AES2(state, e));
 		printState(AES3(state, e));
 		printState(AES4(state, e));
@@ -209,7 +209,7 @@ public class AES{
 				shiftRows(state);
 				mixColumns(state);
 				addRoundKey(state, setRoundKey(i+1));//round keys 1:9
-				//roundResult[i] = matrixToString(state);
+				roundResult[i] = matrixToString(state);
 			}
 			substituteBytes(state);
 			shiftRows(state);
@@ -222,7 +222,7 @@ public class AES{
 				inverseSubstituteBytes(state);
 				addRoundKey(state, setRoundKey(i));
 				inverseMixColumns(state);
-				//roundResult[i] = matrixToString(state);
+				roundResult[i] = matrixToString(state);
 			}
 			inverseShiftRows(state);
 			inverseSubstituteBytes(state);
@@ -313,6 +313,7 @@ public class AES{
 
 	private int[][] AES4(int[][] state, boolean e){//change this to return a string once we have a method that converts state to a string?
 		if (e){
+			addRoundKey(state, setRoundKey(0));
 			for (int i = 0; i < numberOfRounds; i++){
 				substituteBytes(state);
 				shiftRows(state);
@@ -323,6 +324,7 @@ public class AES{
 			shiftRows(state);
 		}
 		else{
+			addRoundKey(state, setRoundKey(10));
 			for (int i = numberOfRounds; i > 0 ; i--){
 				inverseShiftRows(state);
 				inverseSubstituteBytes(state);
@@ -430,7 +432,7 @@ public class AES{
 			tempArray[2][i] = (state[0][i] ^ state[1][i] ^ multiply2[state[2][i]] ^ multiply3[state[3][i]]);
 			tempArray[3][i] = (multiply3[state[0][i]] ^ state[1][i] ^ state[2][i] ^ multiply2[state[3][i]]);
 		}
-		copyMatrix(state, tempArray);
+		copyMatrix(tempArray, state);
 	}
 
 	/**
@@ -445,7 +447,7 @@ public class AES{
 			tempArray[2][i] = (multiplyD[state[0][i]] ^ multiply9[state[1][i]] ^ multiplyE[state[2][i]] ^ multiplyB[state[3][i]]);
 			tempArray[3][i] = (multiplyB[state[0][i]] ^ multiplyD[state[1][i]] ^ multiply9[state[2][i]] ^ multiplyE[state[3][i]]);
 		}
-		copyMatrix(state, tempArray);
+		copyMatrix(tempArray, state);
 	}
 
 	//Operates on 4 bytes at a time - the 4th word
