@@ -130,7 +130,7 @@ public class Application {
 					out.flush();
 				}
 
-			} else if (args[1].equalsIgnoreCase("d")) {    //for decryption
+			} else if (args[1].equalsIgnoreCase("d")) {    	//for decryption
 				AES aes = new AES(firstLine, key, false, 0);
 
 				//output

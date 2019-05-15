@@ -399,7 +399,7 @@ public class AES{
 	}
 
 	/**
-	 * Performs the shift rows part of the AES algorithm.
+	 * Performs the shift rows step of the AES algorithm.
 	 * @param array the array to perform shifts on
 	 */
 	private void shiftRows(int[][] array) {
@@ -461,6 +461,7 @@ public class AES{
 	private void mixColumns(int[][] state){
 		int[][] tempArray = new int[4][4];
 		for (int i = 0; i < 4; i++){//for each column
+			//perform required lookup multiplications corresponding to the Galois field matrix
 			tempArray[0][i] = (multiply2[state[0][i]] ^ multiply3[state[1][i]] ^ state[2][i] ^ state[3][i]);
 			tempArray[1][i] = (state[0][i] ^ multiply2[state[1][i]] ^ multiply3[state[2][i]] ^ state[3][i]);
 			tempArray[2][i] = (state[0][i] ^ state[1][i] ^ multiply2[state[2][i]] ^ multiply3[state[3][i]]);
@@ -476,6 +477,7 @@ public class AES{
 	private void inverseMixColumns(int[][] state){
 		int[][] tempArray = new int[4][4];
 		for (int i = 0; i < 4; i++){//for each column
+			//perform required lookup multiplications corresponding to the inverse Galois field matrix
 			tempArray[0][i] = (multiplyE[state[0][i]] ^ multiplyB[state[1][i]] ^ multiplyD[state[2][i]] ^ multiply9[state[3][i]]);
 			tempArray[1][i] = (multiply9[state[0][i]] ^ multiplyE[state[1][i]] ^ multiplyB[state[2][i]] ^ multiplyD[state[3][i]]);
 			tempArray[2][i] = (multiplyD[state[0][i]] ^ multiply9[state[1][i]] ^ multiplyE[state[2][i]] ^ multiplyB[state[3][i]]);
@@ -515,9 +517,9 @@ public class AES{
 			}
 		}
 
-		int wordCount = 4; //out of 44
-		int roundConstantValToXOR = 1;
-		int[] tempArray = new int[4];
+		int wordCount = 4;//current number of words (out of 44)
+		int roundConstantValToXOR = 1;//the index of roundConstant to select for the XOR step
+		int[] tempArray = new int[4];//temporary array to operate on
 
 		while (wordCount < 44){
 			for (int i = 0; i < 4; i++){
@@ -543,10 +545,10 @@ public class AES{
 	 * @return 4x4 int matrix containing the round key
 	 */
 	private int[][] setRoundKey(int round){
-		int[][] roundKey = new int[4][4];
+		int[][] roundKey = new int[4][4];//the single key to be returned
 		for (int i = 0; i < 4; i++){
 			for (int j = round * 4; j < (round * 4) + 4; j++){
-				roundKey[i][j % 4] = expandedKey[i][j];
+				roundKey[i][j % 4] = expandedKey[i][j];//sets the round key to the corresponding key stored in the expandedKey array
 			}
 		}
 		return roundKey;
@@ -560,7 +562,7 @@ public class AES{
 	private void addRoundKey(int[][] state, int[][] roundKey){
 		for (int i = 0; i < 4; i++){//for each column
 			for (int j = 0; j < 4; j++){//for each row
-				state[j][i] ^= roundKey[j][i];
+				state[j][i] ^= roundKey[j][i];//XOR the state and current round key
 			}
 		}
 	}
@@ -573,7 +575,7 @@ public class AES{
 	private void copyMatrix(int[][] original, int[][] target){
 		for (int i = 0; i < original.length; i++){//for each row
 			for (int j = 0; j < original[0].length; j++){//for each column
-				target[i][j] = original[i][j];
+				target[i][j] = original[i][j];//copy the value
 			}
 		}
 	}
@@ -584,13 +586,13 @@ public class AES{
 	 * @return formatted string  
 	 */
 	private String matrixToString(int[][] m) {
-	String res = "";
+	String result = "";
 	for(int i = 0; i < m.length; i++) {
 		for (int j = 0; j < m[0].length; j++) {
-			res += String.format("%8s", Integer.toBinaryString(m[j][i])).replace(' ', '0');
+			result += String.format("%8s", Integer.toBinaryString(m[j][i])).replace(' ', '0');
 		}
 	}
-	return res;
+	return result;
 	}
 
 	/**
