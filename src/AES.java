@@ -5,12 +5,6 @@
  * Contains methods and lookup tables for AES0, AES1, AES2, AES3, AES4
  *
  */
-//Brenden:
-//TODO: create a method that converts our 4x4 state to a string formatted as required.
-	//Call at the end of each AES_I method so that this is what is returned by each.
-	//No System.outs in this class!
-//TODO: format all output as required (in Application class, obviously)
-//TODO: commenting/documentation. Ask me if anything in my methods is unclear! I tried to do some as I went...
 
 public class AES{
 
@@ -156,7 +150,7 @@ public class AES{
 	private int[][] expandedKey = new int[4][44];
 	private int numberOfRounds = 9;
 	//string array of the result after each round
-	private String[] roundResult = new String [10];
+	private String[] roundResult = new String [11];
 
 	//parametrised constructor
 	public AES(String firstLine, String inputKey, boolean e, int version){
@@ -173,19 +167,19 @@ public class AES{
 
 		keyExpansionSchedule(key, expandedKey);
 		if (version == 0) {
-			roundResult[9] = matrixToString(AES0(state, e));
+			roundResult[10] = matrixToString(AES0(state, e));
 		}
 		else if (version == 1) {
-			roundResult[9] = matrixToString(AES1(state, e));
+			roundResult[10] = matrixToString(AES1(state, e));
 		}
 		else if (version == 2) {
-			roundResult[9] = matrixToString(AES2(state, e));
+			roundResult[10] = matrixToString(AES2(state, e));
 		}
 		else if (version == 3) {
-			roundResult[9] = matrixToString(AES3(state, e));
+			roundResult[10] = matrixToString(AES3(state, e));
 		}
 		else if (version == 4) {
-			roundResult[9] = matrixToString(AES4(state, e));
+			roundResult[10] = matrixToString(AES4(state, e));
 		}
 		else {
 			//error
@@ -201,7 +195,14 @@ public class AES{
 		//*************************
 	}
 
-	private int[][] AES0(int[][] state, boolean e){//change this to return a string once we have a method that converts state to a string?
+	/**
+	 * The original AES version
+	 * @param state plaintext or ciphertext as a 4x4 matrix
+	 * @param e encryption/decryption flag. True for encryption 
+	 * @return encrypted plaintext or decrypted ciphertext
+	 */
+	private int[][] AES0(int[][] state, boolean e){
+		roundResult[0] = matrixToString(state);
 		if (e){
 			addRoundKey(state, setRoundKey(0));
 			for (int i = 0; i < numberOfRounds; i++){
@@ -209,7 +210,7 @@ public class AES{
 				shiftRows(state);
 				mixColumns(state);
 				addRoundKey(state, setRoundKey(i+1));//round keys 1:9
-				roundResult[i] = matrixToString(state);
+				roundResult[i+1] = matrixToString(state);
 			}
 			substituteBytes(state);
 			shiftRows(state);
@@ -222,7 +223,7 @@ public class AES{
 				inverseSubstituteBytes(state);
 				addRoundKey(state, setRoundKey(i));
 				inverseMixColumns(state);
-				roundResult[i] = matrixToString(state);
+				roundResult[(numberOfRounds-i)+1] = matrixToString(state);
 			}
 			inverseShiftRows(state);
 			inverseSubstituteBytes(state);
@@ -231,14 +232,21 @@ public class AES{
 		return state;
 	}
 
-	private int[][] AES1(int[][] state, boolean e) {//change this to return a string once we have a method that converts state to a string?
+	/**
+	 * AES1 – SubstituteBytesis missing from all rounds
+	 * @param state plaintext or ciphertext as a 4x4 matrix
+	 * @param e encryption/decryption flag. True for encryption 
+	 * @return encrypted plaintext or decrypted ciphertext
+	 */
+	private int[][] AES1(int[][] state, boolean e) {
+		roundResult[0] = matrixToString(state);
 		if (e){
 			addRoundKey(state, setRoundKey(0));
 			for (int i = 0; i < numberOfRounds; i++){
 				shiftRows(state);
 				mixColumns(state);
 				addRoundKey(state, setRoundKey(i+1));//round keys 1:9
-				roundResult[i] = matrixToString(state);
+				roundResult[i+1] = matrixToString(state);
 			}
 			shiftRows(state);
 			addRoundKey(state, setRoundKey(10));
@@ -249,7 +257,7 @@ public class AES{
 				inverseShiftRows(state);
 				addRoundKey(state, setRoundKey(i));
 				inverseMixColumns(state);
-				roundResult[i] = matrixToString(state);
+				roundResult[(numberOfRounds-i)+1] = matrixToString(state);
 			}
 			inverseShiftRows(state);
 			addRoundKey(state, setRoundKey(0));
@@ -257,14 +265,21 @@ public class AES{
 		return state;
 	}
 
-	private int[][] AES2(int[][] state, boolean e){//change this to return a string once we have a method that converts state to a string?
+	/**
+	 * AES2 – ShiftRowsismissing from all rounds
+	 * @param state plaintext or ciphertext as a 4x4 matrix
+	 * @param e encryption/decryption flag. True for encryption 
+	 * @return encrypted plaintext or decrypted ciphertext
+	 */
+	private int[][] AES2(int[][] state, boolean e){
+		roundResult[0] = matrixToString(state);
 		if (e){
 			addRoundKey(state, setRoundKey(0));
 			for (int i = 0; i < numberOfRounds; i++){
 				substituteBytes(state);
 				mixColumns(state);
 				addRoundKey(state, setRoundKey(i+1));//round keys 1:9
-				roundResult[i] = matrixToString(state);
+				roundResult[i+1] = matrixToString(state);
 			}
 			substituteBytes(state);
 			addRoundKey(state, setRoundKey(10));
@@ -275,7 +290,7 @@ public class AES{
 				inverseSubstituteBytes(state);
 				addRoundKey(state, setRoundKey(i));
 				inverseMixColumns(state);
-				roundResult[i] = matrixToString(state);
+				roundResult[(numberOfRounds-i)+1] = matrixToString(state);
 			}
 			inverseSubstituteBytes(state);
 			addRoundKey(state, setRoundKey(0));
@@ -283,14 +298,21 @@ public class AES{
 		return state;
 	}
 
-	private int[][] AES3(int[][] state, boolean e){//change this to return a string once we have a method that converts state to a string?
+	/**
+	 * AES3 – MixColumnsis missing from all rounds
+	 * @param state plaintext or ciphertext as a 4x4 matrix
+	 * @param e encryption/decryption flag. True for encryption 
+	 * @return encrypted plaintext or decrypted ciphertext
+	 */
+	private int[][] AES3(int[][] state, boolean e){
+		roundResult[0] = matrixToString(state);
 		if (e){
 			addRoundKey(state, setRoundKey(0));
 			for (int i = 0; i < numberOfRounds; i++){
 				substituteBytes(state);
 				shiftRows(state);
 				addRoundKey(state, setRoundKey(i+1));//round keys 1:9
-				roundResult[i] = matrixToString(state);
+				roundResult[i+1] = matrixToString(state);
 			}
 			substituteBytes(state);
 			shiftRows(state);
@@ -302,7 +324,7 @@ public class AES{
 				inverseShiftRows(state);
 				inverseSubstituteBytes(state);
 				addRoundKey(state, setRoundKey(i));
-				roundResult[i] = matrixToString(state);
+				roundResult[(numberOfRounds-i)+1] = matrixToString(state);
 			}
 			inverseShiftRows(state);
 			inverseSubstituteBytes(state);
@@ -311,14 +333,21 @@ public class AES{
 		return state;
 	}
 
-	private int[][] AES4(int[][] state, boolean e){//change this to return a string once we have a method that converts state to a string?
+	/**
+	 * AES4 - AddRoundKeyis missing from all rounds
+	 * @param state plaintext or ciphertext as a 4x4 matrix
+	 * @param e encryption/decryption flag. True for encryption 
+	 * @return encrypted plaintext or decrypted ciphertext
+	 */
+	private int[][] AES4(int[][] state, boolean e){
+		roundResult[0] = matrixToString(state);
 		if (e){
 			addRoundKey(state, setRoundKey(0));
 			for (int i = 0; i < numberOfRounds; i++){
 				substituteBytes(state);
 				shiftRows(state);
 				mixColumns(state);
-				roundResult[i] = matrixToString(state);
+				roundResult[i+1] = matrixToString(state);
 			}
 			substituteBytes(state);
 			shiftRows(state);
@@ -329,7 +358,7 @@ public class AES{
 				inverseShiftRows(state);
 				inverseSubstituteBytes(state);
 				inverseMixColumns(state);
-				roundResult[i] = matrixToString(state);
+				roundResult[(numberOfRounds-i)+1] = matrixToString(state);
 			}
 			inverseShiftRows(state);
 			inverseSubstituteBytes(state);
@@ -354,7 +383,12 @@ public class AES{
 		substituteBytesHelper(state, inverseSBox);
 	}
 
-	private void substituteBytesHelper(int[][] state, int[][] sBox){//TODO: sBox parameter could probably have a better name...
+	/**
+	 * Preforms the actual substitution for substituteBytes and inverseSubstituteBytes
+	 * @param state array whose values will be replaced by the look up table
+	 * @param sBox array used for look up 
+	 */
+	private void substituteBytesHelper(int[][] state, int[][] sBox){
 		int val;
 		for (int i = 0; i < 4; i++){//columns
 			for (int j = 0; j < 4; j++){//rows
@@ -421,7 +455,7 @@ public class AES{
 	}
 
 	/**
-	 * Performs matrix multiplication of state and galois array in GF(2^8), then applies to the state using lookup table
+	 * Performs mix columns step by using lookup tables in Galois field multiplication (2^8) for 2 and 3 times 
 	 * @param state array to be modified
 	 */
 	private void mixColumns(int[][] state){
@@ -436,7 +470,7 @@ public class AES{
 	}
 
 	/**
-	 * Performs matrix multiplication of state and inverse galois array in GF(2^8), then applies to the state using lookup table
+	 * Performs inverse mix columns step by using lookup tables in Galois field multiplication (2^8) for 9, 11, 13 and 14 times 
 	 * @param state array to be modified
 	 */
 	private void inverseMixColumns(int[][] state){
@@ -450,7 +484,11 @@ public class AES{
 		copyMatrix(tempArray, state);
 	}
 
-	//Operates on 4 bytes at a time - the 4th word
+	/**
+	 * G function used in AES key expansion
+	 * @param temp word to apply g function to
+	 * @param roundConstantValToXOR value from roundConstant array to XOR with temp 
+	 */ 
 	private void gFunction(int[] temp, int roundConstantValToXOR){
 		//Rotate left
 		temp = rotateLeft(temp, 1);
@@ -464,7 +502,11 @@ public class AES{
 		temp[0] ^= roundConstant[roundConstantValToXOR];
 	}
 
-
+	/**
+	 * The key expansion algorithm that takes the key and produces all round keys
+	 * @param inputKey the key to preform the expansion on
+	 * @param allExpandedKeys array that sotres the expanded key
+	 */
 	private void keyExpansionSchedule(int[][] inputKey, int[][] allExpandedKeys){
 		//First copy the original key
 		for (int i = 0; i < 4; i++){
@@ -494,6 +536,12 @@ public class AES{
 		}
 	}
 
+
+	/**
+	 * returns a 4x4 matrix containing the round key specified by the round value
+	 * @param round round number 
+	 * @return 4x4 int matrix containing the round key
+	 */
 	private int[][] setRoundKey(int round){
 		int[][] roundKey = new int[4][4];
 		for (int i = 0; i < 4; i++){
@@ -504,6 +552,11 @@ public class AES{
 		return roundKey;
 	}
 
+	/**
+	 * XOR's the state and roundKey matrices. Add round key step of Rijndael algorithm.
+	 * @param state state matrix
+	 * @param roundKey round key matrix
+	 */
 	private void addRoundKey(int[][] state, int[][] roundKey){
 		for (int i = 0; i < 4; i++){
 			for (int j = 0; j < 4; j++){
@@ -540,6 +593,11 @@ public class AES{
 		System.out.println();
 	}
 
+	/**
+	 * Takes state as an int matrix and returns it as a formatted string
+	 * @param m matrix to be converted to string
+	 * @return formatted string  
+	 */
 	private String matrixToString(int[][] m) {
 	String res = "";
 	for(int i = 0; i < m.length; i++) {
@@ -550,7 +608,10 @@ public class AES{
 	return res;
 	}
 
-	//round result getter
+	/**
+	 * roundResult getter
+	 * @return array of strings containing results after each round
+	 */
 	public String[] getRoundResult() {
 		return roundResult;
 	}
