@@ -3,11 +3,8 @@ import java.util.*;
 import java.lang.*;
 
 /**
- * Application.java - COMP3260 Assignment 2
- * Date: 15/05/2019
  * @author Brenden Mayall c3236213
  * @author Leala Darby c3279478
- *
  *
  * Main runnable class for AES implementaion.
  */
@@ -18,6 +15,7 @@ public class Application {
 	 * Usage: java Application inputFile.txt e|d
 	 * @param args Array of command line arguments
 	 */
+	//TODO exception handling
 	public static void main(String args[]) throws IOException {
 		BufferedReader in = null;
 		BufferedWriter out = null;
@@ -40,7 +38,7 @@ public class Application {
 				double[][] result_pi = new double[11][5];
 				double[][] result_ki = new double[11][5];
 
-				//store the round results returned by the AES class
+				//store the round results retuned by the AES class
 				String[] p_under_k = new String[11];
 				String[] pi_under_k = new String[11];
 				String[] p_under_ki = new String[11];
@@ -153,7 +151,7 @@ public class Application {
 	}
 
 	/**
-	 * Method to convert a string of bits to a bit set
+	 * method to convert a string of bits to a bit set
 	 * @param binary binary string to convert
 	 * @return converted bit set
 	 */
@@ -168,7 +166,7 @@ public class Application {
 	}
 
 	/**
-	 * Method to convert bit set to binary string
+	 * method to convert bit set to binary string
 	 * @param bs bit set to convert
 	 * @return converted binary string
 	 */

@@ -1,14 +1,13 @@
 /**
- * AES.java - COMP3260 Assignment 2
- * Date: 15/05/2019
  * @author Brenden Mayall c3236213
  * @author Leala Darby c3279478
  *
- * Contains methods and lookup tables required for AES encryption and decryption implementation,
- * of types AES0, AES1, AES2, AES3, AES4.
+ * Contains methods and lookup tables for AES0, AES1, AES2, AES3, AES4
+ *
  */
 
 public class AES{
+
 	//S-box matrix used for the substitute bytes and key expansion steps
 	private static final int[][] sBox = {{0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76},
 										{0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0}, 
@@ -182,18 +181,29 @@ public class AES{
 		else if (version == 4) {
 			roundResult[10] = matrixToString(AES4(state, e));
 		}
+		else {
+			//error
+		}
+		
+		//testing******************
+		/*printState(AES0(state, e));
+		printState(AES1(state, e));
+		printState(AES2(state, e));
+		printState(AES3(state, e));
+		printState(AES4(state, e));
+		System.out.println(matrixToString(state));*/
+		//*************************
 	}
 
 	/**
 	 * The original AES version
 	 * @param state plaintext or ciphertext as a 4x4 matrix
-	 * @param e encryption/decryption flag. True for encryption
+	 * @param e encryption/decryption flag. True for encryption 
 	 * @return encrypted plaintext or decrypted ciphertext
 	 */
 	private int[][] AES0(int[][] state, boolean e){
 		roundResult[0] = matrixToString(state);
 		if (e){
-			//encrypt
 			addRoundKey(state, setRoundKey(0));
 			for (int i = 0; i < numberOfRounds; i++){
 				substituteBytes(state);
@@ -207,7 +217,6 @@ public class AES{
 			addRoundKey(state, setRoundKey(10));
 		}
 		else{
-			//decrypt
 			addRoundKey(state, setRoundKey(10));
 			for (int i = numberOfRounds; i > 0 ; i--){
 				inverseShiftRows(state);
@@ -224,7 +233,7 @@ public class AES{
 	}
 
 	/**
-	 * AES1 – SubstituteBytes is missing from all rounds
+	 * AES1 – SubstituteBytesis missing from all rounds
 	 * @param state plaintext or ciphertext as a 4x4 matrix
 	 * @param e encryption/decryption flag. True for encryption 
 	 * @return encrypted plaintext or decrypted ciphertext
@@ -232,7 +241,6 @@ public class AES{
 	private int[][] AES1(int[][] state, boolean e) {
 		roundResult[0] = matrixToString(state);
 		if (e){
-			//encrypt
 			addRoundKey(state, setRoundKey(0));
 			for (int i = 0; i < numberOfRounds; i++){
 				shiftRows(state);
@@ -244,7 +252,6 @@ public class AES{
 			addRoundKey(state, setRoundKey(10));
 		}
 		else{
-			//decrypt
 			addRoundKey(state, setRoundKey(10));
 			for (int i = numberOfRounds; i > 0 ; i--){
 				inverseShiftRows(state);
@@ -259,15 +266,14 @@ public class AES{
 	}
 
 	/**
-	 * AES2 – ShiftRows is missing from all rounds
+	 * AES2 – ShiftRowsismissing from all rounds
 	 * @param state plaintext or ciphertext as a 4x4 matrix
-	 * @param e encryption/decryption flag. True for encryption
+	 * @param e encryption/decryption flag. True for encryption 
 	 * @return encrypted plaintext or decrypted ciphertext
 	 */
 	private int[][] AES2(int[][] state, boolean e){
 		roundResult[0] = matrixToString(state);
 		if (e){
-			//encrypt
 			addRoundKey(state, setRoundKey(0));
 			for (int i = 0; i < numberOfRounds; i++){
 				substituteBytes(state);
@@ -279,7 +285,6 @@ public class AES{
 			addRoundKey(state, setRoundKey(10));
 		}
 		else{
-			//decrypt
 			addRoundKey(state, setRoundKey(10));
 			for (int i = numberOfRounds; i > 0 ; i--){
 				inverseSubstituteBytes(state);
@@ -294,7 +299,7 @@ public class AES{
 	}
 
 	/**
-	 * AES3 – MixColumns is missing from all rounds
+	 * AES3 – MixColumnsis missing from all rounds
 	 * @param state plaintext or ciphertext as a 4x4 matrix
 	 * @param e encryption/decryption flag. True for encryption 
 	 * @return encrypted plaintext or decrypted ciphertext
@@ -302,7 +307,6 @@ public class AES{
 	private int[][] AES3(int[][] state, boolean e){
 		roundResult[0] = matrixToString(state);
 		if (e){
-			//encrypt
 			addRoundKey(state, setRoundKey(0));
 			for (int i = 0; i < numberOfRounds; i++){
 				substituteBytes(state);
@@ -315,7 +319,6 @@ public class AES{
 			addRoundKey(state, setRoundKey(10));
 		}
 		else{
-			//decrypt
 			addRoundKey(state, setRoundKey(10));
 			for (int i = numberOfRounds; i > 0 ; i--){
 				inverseShiftRows(state);
@@ -331,7 +334,7 @@ public class AES{
 	}
 
 	/**
-	 * AES4 - AddRoundKey is missing from all rounds
+	 * AES4 - AddRoundKeyis missing from all rounds
 	 * @param state plaintext or ciphertext as a 4x4 matrix
 	 * @param e encryption/decryption flag. True for encryption 
 	 * @return encrypted plaintext or decrypted ciphertext
@@ -339,7 +342,6 @@ public class AES{
 	private int[][] AES4(int[][] state, boolean e){
 		roundResult[0] = matrixToString(state);
 		if (e){
-			//encrypt
 			addRoundKey(state, setRoundKey(0));
 			for (int i = 0; i < numberOfRounds; i++){
 				substituteBytes(state);
@@ -351,7 +353,6 @@ public class AES{
 			shiftRows(state);
 		}
 		else{
-			//decrypt
 			addRoundKey(state, setRoundKey(10));
 			for (int i = numberOfRounds; i > 0 ; i--){
 				inverseShiftRows(state);
@@ -367,7 +368,7 @@ public class AES{
 
 	/**
 	 * Substitutes bytes in the passed state array with the bytes in the sBox array.
-	 * Each byte in state is replaced by a byte in row (left nibble) and column (right nibble) of sBox.
+	 * Each byte in state is replaced by byte in row (left nibble) and column (right nibble) of sBox. 
 	 * @param state array whose values will be replaced by values in sBox
 	 */
 	private void substituteBytes(int[][] state) {
@@ -375,8 +376,7 @@ public class AES{
 	}
 
 	/**
-	 * Substitutes bytes in the passed state array with the bytes in the inverseSBox array.
-	 * Each byte in state is replaced by byte in row (left nibble) and column (right nibble) of inverseSBox.
+	 * Same as substituteBytes but uses inverseSBox
 	 * @param state array whose values will be replaced by values in inverseSBox
 	 */
 	private void inverseSubstituteBytes(int[][] state){
@@ -384,11 +384,11 @@ public class AES{
 	}
 
 	/**
-	 * Performs the actual substitution for substituteBytes and inverseSubstituteBytes.
-	 * @param state array whose values will be replaced by the lookup table
-	 * @param sBox array used for lookup
+	 * Preforms the actual substitution for substituteBytes and inverseSubstituteBytes
+	 * @param state array whose values will be replaced by the look up table
+	 * @param sBox array used for look up 
 	 */
-	private void substituteBytesHelper(int[][] state, int[][] sBox){//sBox will be either sBox or inverseSBox, as required
+	private void substituteBytesHelper(int[][] state, int[][] sBox){
 		int val;
 		for (int i = 0; i < 4; i++){//columns
 			for (int j = 0; j < 4; j++){//rows
@@ -399,7 +399,7 @@ public class AES{
 	}
 
 	/**
-	 * Performs the shift rows part of the AES algorithm.
+	 * Performs the shift rows part of the AES algorithm
 	 * @param array the array to perform shifts on
 	 */
 	private void shiftRows(int[][] array) {
@@ -409,7 +409,7 @@ public class AES{
 	}
 
 	/**
-	 * Inverse of shiftRows for AES decryption.
+	 * Inverse of shiftRows for decryption
 	 * @param array the array to perform shifts on
 	 */
 	private void inverseShiftRows(int[][] array){
@@ -419,7 +419,7 @@ public class AES{
 	}
 
 	/**
-	 * Performs a circular left shift to the given array the specified number of times.
+	 * Performs a circular left shift to the given array the specified number of times
 	 * @param row the array to be rotated
 	 * @param times number of times the array is to be rotated
 	 * @return the rotated array 
@@ -437,7 +437,7 @@ public class AES{
 	}
 
 	/**
-	 * Does a circular shift right to the given array the specified number of times.
+	 * Does a circular shift right to the given array the specified number of times
 	 * @param row the array to be rotated
 	 * @param times number of times the array is rotated
 	 * @return the rotated array 
@@ -455,7 +455,7 @@ public class AES{
 	}
 
 	/**
-	 * Performs mix columns step by using lookup tables in Galois field multiplication (2^8) for 2 and 3 times.
+	 * Performs mix columns step by using lookup tables in Galois field multiplication (2^8) for 2 and 3 times 
 	 * @param state array to be modified
 	 */
 	private void mixColumns(int[][] state){
@@ -470,7 +470,7 @@ public class AES{
 	}
 
 	/**
-	 * Performs inverse mix columns step by using lookup tables in Galois field multiplication (2^8) for 9, 11, 13 and 14 times.
+	 * Performs inverse mix columns step by using lookup tables in Galois field multiplication (2^8) for 9, 11, 13 and 14 times 
 	 * @param state array to be modified
 	 */
 	private void inverseMixColumns(int[][] state){
@@ -485,9 +485,9 @@ public class AES{
 	}
 
 	/**
-	 * G function used in AES key expansion.
+	 * G function used in AES key expansion
 	 * @param temp word to apply g function to
-	 * @param roundConstantValToXOR index of value from roundConstant array to XOR with temp
+	 * @param roundConstantValToXOR value from roundConstant array to XOR with temp 
 	 */ 
 	private void gFunction(int[] temp, int roundConstantValToXOR){
 		//Rotate left
@@ -503,7 +503,7 @@ public class AES{
 	}
 
 	/**
-	 * The key expansion algorithm that takes the key and produces all round keys.
+	 * The key expansion algorithm that takes the key and produces all round keys
 	 * @param inputKey the key to preform the expansion on
 	 * @param allExpandedKeys array that sotres the expanded key
 	 */
@@ -538,7 +538,7 @@ public class AES{
 
 
 	/**
-	 * Returns a 4x4 matrix containing the round key specified by the round value.
+	 * returns a 4x4 matrix containing the round key specified by the round value
 	 * @param round round number 
 	 * @return 4x4 int matrix containing the round key
 	 */
@@ -558,28 +558,43 @@ public class AES{
 	 * @param roundKey round key matrix
 	 */
 	private void addRoundKey(int[][] state, int[][] roundKey){
-		for (int i = 0; i < 4; i++){//for each column
-			for (int j = 0; j < 4; j++){//for each row
+		for (int i = 0; i < 4; i++){
+			for (int j = 0; j < 4; j++){
 				state[j][i] ^= roundKey[j][i];
 			}
 		}
 	}
 
 	/**
-	 * Helper method to copy 2d array.
+	 * Helper method to copy 2d array
 	 * @param target matrix copied to
 	 * @param original matrix to be copied
 	 */ 
 	private void copyMatrix(int[][] original, int[][] target){
-		for (int i = 0; i < original.length; i++){//for each row
-			for (int j = 0; j < original[0].length; j++){//for each column
+		for (int i = 0; i < original.length; i++){
+			for (int j = 0; j < original[0].length; j++){
 				target[i][j] = original[i][j];
 			}
 		}
 	}
 
+
 	/**
-	 * Takes state as an int matrix and returns it as a formatted string.
+	 * Debugging method. Prints state to console
+	 * @param state array to print
+	 */
+	public void printState(int[][] state){
+		for (int i = 0; i < 4; i++){
+			for (int j = 0; j < 4; j++){
+				System.out.print(String.format("%8s", Integer.toBinaryString(state[i][j])).replace(' ', '0') + " "); 
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}
+
+	/**
+	 * Takes state as an int matrix and returns it as a formatted string
 	 * @param m matrix to be converted to string
 	 * @return formatted string  
 	 */
@@ -594,7 +609,7 @@ public class AES{
 	}
 
 	/**
-	 * Getter for roundResult.
+	 * roundResult getter
 	 * @return array of strings containing results after each round
 	 */
 	public String[] getRoundResult() {
