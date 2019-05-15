@@ -23,9 +23,9 @@ public class Application {
 		BufferedWriter out = null;
 
 		try {
-			in = new BufferedReader(new FileReader(args[0]));
-			out = new BufferedWriter(new FileWriter("output.txt"));
-			String firstLine = in.readLine();
+			in = new BufferedReader(new FileReader(args[0]));	//input file
+			out = new BufferedWriter(new FileWriter("output.txt"));	//output file
+			String firstLine = in.readLine();	//ciphertext or plaintext
 			String key = in.readLine();
 
 			if (args[1].equalsIgnoreCase("e")) {            //for encryption
@@ -70,7 +70,7 @@ public class Application {
 							BitSet ptemp = toBitSet(p_under_k[k]);
 							BitSet pitemp = toBitSet(pi_under_k[k]);
 							for(int b = 0; b < 128; b++) {	//loop for each bit of round result
-								if (ptemp.get(b) ^ pitemp.get(b)) {
+								if (ptemp.get(b) ^ pitemp.get(b)) {	//If bits are different, increment results_pi
 									result_pi[k][i]++;
 								}
 							}
@@ -84,7 +84,7 @@ public class Application {
 							BitSet ptemp = toBitSet(p_under_k[k]);
 							BitSet kitemp = toBitSet(p_under_ki[k]);
 							for(int b = 0; b < 128; b++) {	//loop for each bit of round result
-								if (ptemp.get(b) ^ kitemp.get(b)) {
+								if (ptemp.get(b) ^ kitemp.get(b)) {	//If bits are different, increment results_ki
 									result_ki[k][i]++;
 								}
 							}
@@ -93,7 +93,7 @@ public class Application {
 				}
 
 				Long endTime = System.nanoTime();
-				Long timeElapsed = endTime - startTime;
+				Long timeElapsed = endTime - startTime;	//time elapsed (nano seconds)
 
 				//output
 				AES aes = new AES(firstLine, key, true, 0);
@@ -102,16 +102,15 @@ public class Application {
 				out.write("Key K: " + key + "\n");
 				out.write("Ciphertext C: " + aes.getRoundResult()[10] + "\n");
 				out.write("Running Time: " + String.format("%d", timeElapsed/1000000) + "ms\n");
-				System.out.println();
 				out.write("Avalanche:\n");
 				//append pi under k results
 				out.write("P and Pi under K\n");
 				out.write("Round" + '\t' + "AES0" + '\t' + "AES1" + '\t' + "AES2" + '\t' + "AES3" + '\t' + "AES4" + '\n');
 				out.flush();
-				for (int i = 0; i < 11; i++) {
-					out.write(String.valueOf(i) + '\t');
-					for (int j = 0; j < 5; j++) {
-						out.write('\t' + String.valueOf((int)Math.round(result_pi[i][j]/128)) + '\t');
+				for (int i = 0; i < 11; i++) {	//loop for each round
+					out.write(String.valueOf(i) + '\t');	//print round number
+					for (int j = 0; j < 5; j++) {	//loop for each version
+						out.write('\t' + String.valueOf((int)Math.round(result_pi[i][j]/128)) + '\t');	//calculate average number of differing bits and round to nearest whole number
 					}
 					out.newLine();
 					out.flush();
@@ -121,10 +120,10 @@ public class Application {
 				out.write("P under K and Ki\n");
 				out.write("Round" + '\t' + "AES0" + '\t' + "AES1" + '\t' + "AES2" + '\t' + "AES3" + '\t' + "AES4" + '\n');
 				out.flush();
-				for (int i = 0; i < 11; i++) {
-					out.write(String.valueOf(i) + '\t');
-					for (int j = 0; j < 5; j++) {
-						out.write('\t' + String.valueOf((int)Math.round(result_ki[i][j]/128)) + '\t');
+				for (int i = 0; i < 11; i++) {	//loop for each round
+					out.write(String.valueOf(i) + '\t');	//print round number
+					for (int j = 0; j < 5; j++) {	//loop for each version
+						out.write('\t' + String.valueOf((int)Math.round(result_ki[i][j]/128)) + '\t');	//calculate average number of differing bits and round to nearest whole number
 					}
 					out.newLine();
 					out.flush();

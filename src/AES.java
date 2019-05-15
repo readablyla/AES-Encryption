@@ -154,7 +154,7 @@ public class AES{
 	private String[] roundResult = new String [11];
 
 	//parametrised constructor
-	public AES(String firstLine, String inputKey, boolean e, int version){
+	public AES(String firstLine, String inputKey, boolean e, int version)throws IllegalArgumentException {
 		int[][] state = new int[4][4];
 		int[][] key = new int[4][4];
 		for (int i = 0; i < 4; i++){	//fill out the state column by column
@@ -181,6 +181,9 @@ public class AES{
 		}
 		else if (version == 4) {
 			roundResult[10] = matrixToString(AES4(state, e));
+		}
+		else {
+			throw new IllegalArgumentException("Invalid version number. Accepted range 0-4.");
 		}
 	}
 
