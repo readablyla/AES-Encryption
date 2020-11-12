@@ -1,8 +1,6 @@
 # AES-Encryption
 Date: 15/05/2019  
-Authors:  
-	Name: Leala Darby  
-	Name: Brenden Mayall  
+Authors: Leala Darby, Brenden Mayall  
 
 This task was written and tested in Java 8 and Windows 10.
 
